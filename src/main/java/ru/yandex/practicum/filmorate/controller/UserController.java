@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +46,6 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getAllUsers() {
-        return users.values();
+        return new ArrayList<>(users.values());
     }
 }

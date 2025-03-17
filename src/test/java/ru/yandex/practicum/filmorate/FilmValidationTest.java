@@ -24,7 +24,7 @@ public class FilmValidationTest {
     @Test
     void shouldNotAllowEmptyFilmName() {
         Film film = new Film();
-        film.setName(""); // Пустое название
+        film.setName("");
         film.setDescription("Описание");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(100);
@@ -63,7 +63,7 @@ public class FilmValidationTest {
         film.setName("Фильм");
         film.setDescription("Описание");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(-100); // Отрицательная продолжительность
+        film.setDuration(-100);
 
         Set violations = validator.validate(film);
         assertFalse(violations.isEmpty(), "Продолжительность фильма должна быть положительной");
