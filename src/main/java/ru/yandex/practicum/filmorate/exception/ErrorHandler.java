@@ -47,7 +47,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleUnexpectedException(final Throwable e) {
-        log.error("500 Internal Server Error: {}", e.getMessage(), e);
+        log.error("500 Internal Server Error [{}]: {}", e.getClass().getSimpleName(), e.getMessage(), e);
         return new ErrorResponse("Произошла непредвиденная ошибка.");
     }
 }
