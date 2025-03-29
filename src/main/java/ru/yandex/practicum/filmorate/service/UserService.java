@@ -8,8 +8,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,11 +25,21 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
+        }
+
         return userStorage.add(user);
     }
 
     public User update(User user) {
-        getById(user.getId());
+        User existingUser = getById(user.getId());
+
+        if (user.getFriends() == null) {
+            user.setFriends(existingUser.getFriends());
+        }
+
         return userStorage.update(user);
     }
 
@@ -44,8 +53,6 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
-        log.info("Добавление в друзья: пользователь {} → {}", userId, friendId);
-
         if (userId.equals(friendId)) {
             throw new ValidationException("Нельзя добавить самого себя в друзья.");
         }
@@ -53,33 +60,42 @@ public class UserService {
         User user = getById(userId);
         User friend = getById(friendId);
 
-        if (!user.getFriends().contains(friendId)) {
-            user.getFriends().add(friendId);
-        }
+        if (user.getFriends() == null) user.setFriends(new HashSet<>());
+        if (friend.getFriends() == null) friend.setFriends(new HashSet<>());
 
-        if (!friend.getFriends().contains(userId)) {
-            friend.getFriends().add(userId);
-        }
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
 
         userStorage.update(user);
         userStorage.update(friend);
 
-        log.info("Пользователи {} и {} теперь друзья", userId, friendId);
+        log.info("Добавлены друзья: {} ↔ {}", userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
         User user = getById(userId);
         User friend = getById(friendId);
 
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        if (user.getFriends() != null) {
+            user.getFriends().remove(friendId);
+        }
+
+        if (friend.getFriends() != null) {
+            friend.getFriends().remove(userId);
+        }
 
         userStorage.update(user);
         userStorage.update(friend);
+
+        log.info("Удалены друзья: {} и {}", userId, friendId);
     }
 
     public List<User> getFriends(Long userId) {
         User user = getById(userId);
+        if (user.getFriends() == null) {
+            return Collections.emptyList();
+        }
+
         return user.getFriends().stream()
                 .map(this::getById)
                 .collect(Collectors.toList());
@@ -88,6 +104,10 @@ public class UserService {
     public List<User> getCommonFriends(Long userId, Long otherId) {
         Set<Long> userFriends = getById(userId).getFriends();
         Set<Long> otherFriends = getById(otherId).getFriends();
+
+        if (userFriends == null || otherFriends == null) {
+            return Collections.emptyList();
+        }
 
         return userFriends.stream()
                 .filter(otherFriends::contains)
