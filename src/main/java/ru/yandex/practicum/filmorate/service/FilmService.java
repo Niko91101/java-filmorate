@@ -69,9 +69,11 @@ public class FilmService {
     }
 
     public List<Film> getMostPopularFilms(int count) {
-        log.info("Запрос самых популярных фильмов. Количество: {}", count);
         return filmStorage.findAll().stream()
-                .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
+                .sorted((f1, f2) -> Integer.compare(
+                        f2.getLikes().size(),
+                        f1.getLikes().size()
+                ))
                 .limit(count)
                 .collect(Collectors.toList());
     }
