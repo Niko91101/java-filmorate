@@ -8,7 +8,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,20 +26,14 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
-
         return userStorage.add(user);
     }
 
     public User update(User user) {
-        User existingUser = getById(user.getId());
+        User existingUser = userStorage.getById(user.getId())
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + user.getId() + " не найден"));
 
-        if (user.getFriends() == null) {
-            user.setFriends(existingUser.getFriends());
-        }
+        user.setFriends(existingUser.getFriends());
 
         return userStorage.update(user);
     }
@@ -53,6 +48,8 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
+        log.info("Добавление в друзья: пользователь {} → {}", userId, friendId);
+
         if (userId.equals(friendId)) {
             throw new ValidationException("Нельзя добавить самого себя в друзья.");
         }
@@ -60,8 +57,9 @@ public class UserService {
         User user = getById(userId);
         User friend = getById(friendId);
 
-        if (user.getFriends() == null) user.setFriends(new HashSet<>());
-        if (friend.getFriends() == null) friend.setFriends(new HashSet<>());
+        if (user.getFriends() == null || friend.getFriends() == null) {
+            throw new ValidationException("Список друзей не инициализирован.");
+        }
 
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
@@ -69,33 +67,29 @@ public class UserService {
         userStorage.update(user);
         userStorage.update(friend);
 
-        log.info("Добавлены друзья: {} ↔ {}", userId, friendId);
+        log.info("Пользователи {} и {} теперь друзья", userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
+        log.info("Удаление из друзей: пользователь {} → {}", userId, friendId);
+
         User user = getById(userId);
         User friend = getById(friendId);
 
-        if (user.getFriends() != null) {
-            user.getFriends().remove(friendId);
-        }
-
-        if (friend.getFriends() != null) {
-            friend.getFriends().remove(userId);
-        }
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
 
         userStorage.update(user);
         userStorage.update(friend);
 
-        log.info("Удалены друзья: {} и {}", userId, friendId);
+        log.info("Пользователи {} и {} больше не друзья", userId, friendId);
     }
 
     public List<User> getFriends(Long userId) {
         User user = getById(userId);
         if (user.getFriends() == null) {
-            return Collections.emptyList();
+            throw new ValidationException("Список друзей пуст или не инициализирован.");
         }
-
         return user.getFriends().stream()
                 .map(this::getById)
                 .collect(Collectors.toList());
@@ -106,7 +100,7 @@ public class UserService {
         Set<Long> otherFriends = getById(otherId).getFriends();
 
         if (userFriends == null || otherFriends == null) {
-            return Collections.emptyList();
+            throw new ValidationException("Один из пользователей не имеет друзей.");
         }
 
         return userFriends.stream()

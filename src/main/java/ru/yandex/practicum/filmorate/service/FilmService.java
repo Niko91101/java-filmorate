@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,10 @@ public class FilmService {
         User user = userStorage.getById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
 
+        if (film.getLikes() == null) {
+            throw new ValidationException("Список лайков не инициализирован для фильма с id=" + filmId);
+        }
+
         film.getLikes().add(userId);
         log.info("Лайк добавлен: фильм {} теперь имеет {} лайков", filmId, film.getLikes().size());
     }
@@ -63,6 +68,10 @@ public class FilmService {
         Film film = getById(filmId);
         User user = userStorage.getById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
+
+        if (film.getLikes() == null) {
+            throw new ValidationException("Список лайков не инициализирован для фильма с id=" + filmId);
+        }
 
         film.getLikes().remove(userId);
         log.info("Лайк удалён: фильм {} теперь имеет {} лайков", filmId, film.getLikes().size());
