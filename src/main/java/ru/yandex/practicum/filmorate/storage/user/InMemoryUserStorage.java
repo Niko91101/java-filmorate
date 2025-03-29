@@ -28,12 +28,18 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public List<User> findAll() {
+        return new ArrayList<>(users.values());
+    }
+
+    @Override
     public Optional<User> getById(Long id) {
         return Optional.ofNullable(users.get(id));
     }
 
-    @Override
-    public List<User> findAll() {
-        return new ArrayList<>(users.values());
+    // Дополнительно — для отладки и тестов
+    public void clear() {
+        users.clear();
+        nextId = 1;
     }
 }
