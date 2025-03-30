@@ -15,5 +15,5 @@ public @interface ReleaseDate {
 
     Class<? extends Payload>[] payload() default {};
 
-    String value() default "1895-12-28"; // Позволяет задать дату при использовании аннотации
+    String value() default "1895-12-28";
 }
