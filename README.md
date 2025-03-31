@@ -74,4 +74,4 @@ mvn spring-boot:run
 ---
 
 ## Расположение схемы
-Картинка схемы: `docs/filmorate_schema.png`
+Картинка схемы: `docs/database-diagram.png`

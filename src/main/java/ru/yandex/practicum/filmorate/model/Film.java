@@ -1,11 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
 import jakarta.validation.constraints.*;
+import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.ReleaseDate;
-import java.util.List;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MpaRating;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -16,7 +13,6 @@ public class Film {
     private long id;
     private Set<Genre> genres = new HashSet<>();
     private MpaRating mpa;
-
 
     @NotBlank(message = "Название фильма не должно быть пустым")
     private String name;
