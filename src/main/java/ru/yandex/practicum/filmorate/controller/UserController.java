@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -12,45 +10,39 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
+
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public User addUser(@Valid @RequestBody User user) {
+    public User add(@Valid @RequestBody User user) {
         return userService.add(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
+    public User update(@Valid @RequestBody User user) {
         return userService.update(user);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         return userService.findAll();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") Long id) {
+    public User getById(@PathVariable("id") Long id) {
         return userService.getById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public ResponseEntity<Void> addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+    public void addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
         userService.addFriend(id, friendId);
-        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public ResponseEntity<Void> removeFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+    public void removeFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
         userService.removeFriend(id, friendId);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/friends")
@@ -63,4 +55,8 @@ public class UserController {
         return userService.getCommonFriends(id, otherId);
     }
 
+    @GetMapping("/{id}/friends/{friendId}")
+    public boolean isFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+        return userService.isFriend(id, friendId);
+    }
 }

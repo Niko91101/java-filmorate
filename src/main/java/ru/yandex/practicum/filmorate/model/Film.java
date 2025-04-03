@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validation.ReleaseDate;
 
 import java.time.LocalDate;
@@ -9,10 +12,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Film {
     private long id;
     private Set<Genre> genres = new HashSet<>();
-    private MpaRating mpa;
+    private Mpa mpa;
 
     @NotBlank(message = "Название фильма не должно быть пустым")
     private String name;
