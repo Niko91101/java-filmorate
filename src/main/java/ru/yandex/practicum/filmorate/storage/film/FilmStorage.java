@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FilmStorage {
+
     Film add(Film film);
 
     Film update(Film film);
@@ -13,4 +14,8 @@ public interface FilmStorage {
     Optional<Film> getById(Long id);
 
     List<Film> findAll();
+
+    List<Film> getMostPopular(int count);
+
+
 }
